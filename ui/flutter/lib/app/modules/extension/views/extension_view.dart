@@ -348,8 +348,8 @@ class ExtensionView extends GetView<ExtensionController> {
                     style:
                         ElevatedButton.styleFrom(shape: const StadiumBorder())
                             .copyWith(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Get.theme.colorScheme.background)),
+                                backgroundColor: WidgetStateProperty.all(
+                                    Get.theme.colorScheme.surface)),
                     onPressed: () {
                       Navigator.of(dialogContext).pop();
                     },

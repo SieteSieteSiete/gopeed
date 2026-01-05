@@ -905,7 +905,7 @@ class SettingView extends GetView<SettingController> {
         final mode = SizedBox(
           width: 150,
           child: DropdownButtonFormField<ProxyModeEnum>(
-            value: proxy.proxyMode,
+            initialValue: proxy.proxyMode,
             onChanged: (value) async {
               if (value != null && value != proxy.proxyMode) {
                 proxy.proxyMode = value;
@@ -936,7 +936,7 @@ class SettingView extends GetView<SettingController> {
         final scheme = SizedBox(
           width: 150,
           child: DropdownButtonFormField<String>(
-            value: proxy.scheme,
+            initialValue: proxy.scheme,
             onChanged: (value) async {
               if (value != null && value != proxy.scheme) {
                 proxy.scheme = value;
@@ -1208,7 +1208,7 @@ class SettingView extends GetView<SettingController> {
           SizedBox(
             width: 80,
             child: DropdownButtonFormField<String>(
-              value: startCfg.value.network,
+              initialValue: startCfg.value.network,
               onChanged: Util.isDesktop() || Util.isAndroid()
                   ? (value) async {
                       startCfg.update((val) {
@@ -1755,7 +1755,7 @@ class SettingView extends GetView<SettingController> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<GithubMirrorType>(
-                  value: selectedType,
+                  initialValue: selectedType,
                   decoration: InputDecoration(
                     labelText: 'githubMirrorType'.tr,
                   ),
