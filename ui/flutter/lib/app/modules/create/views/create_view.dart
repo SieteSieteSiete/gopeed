@@ -415,7 +415,7 @@ class CreateView extends GetView<CreateController> {
                                               width: 150,
                                               child: DropdownButtonFormField<
                                                   String>(
-                                                value: controller
+                                                initialValue: controller
                                                     .proxyConfig.value?.scheme,
                                                 onChanged: (value) async {
                                                   if (value != null) {}
@@ -923,8 +923,8 @@ class CreateView extends GetView<CreateController> {
                     style:
                         ElevatedButton.styleFrom(shape: const StadiumBorder())
                             .copyWith(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Get.theme.colorScheme.background)),
+                                backgroundColor: WidgetStateProperty.all(
+                                    Get.theme.colorScheme.surface)),
                     onPressed: () {
                       Get.back();
                     },
