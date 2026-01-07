@@ -94,10 +94,12 @@ var apiMap = map[string]func(message *Message) (data any, err error){
 		return
 	},
 	"create": func(message *Message) (data any, err error) {
-		buf, err := message.Params.MarshalJSON()
-		if err != nil {
-			return
+		// Unmarshal JSON for contents without quotes
+		var paramsStr string
+		if err := json.Unmarshal(message.Params, &paramsStr); err != nil {
+			return nil, err
 		}
+		buf := []byte(paramsStr)
 
 		silent := false
 		if v, ok := message.Meta["silent"]; ok {
