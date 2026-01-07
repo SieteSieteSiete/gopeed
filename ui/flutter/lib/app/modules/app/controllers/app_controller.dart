@@ -622,9 +622,8 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   CreateTask _decodeToCreatTaskParams(String params) {
-    final safeParams = params.replaceAll('"', "").replaceAll(" ", "+");
     final paramsJson =
-        String.fromCharCodes(base64Decode(base64.normalize(safeParams)));
+        String.fromCharCodes(base64Decode(base64.normalize(params)));
     return CreateTask.fromJson(jsonDecode(paramsJson));
   }
 
