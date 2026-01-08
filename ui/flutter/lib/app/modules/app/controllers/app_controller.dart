@@ -622,8 +622,8 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   CreateTask _decodeToCreatTaskParams(String params) {
-    // RawURLEncoding doesn't use padding, so no need for base64.normalize()
-    // This is compatible with base64.RawURLEncoding used by Go code
+    // URLEncoding includes padding, so Dart's base64Decode works correctly
+    // This is compatible with base64.URLEncoding used by Go code
     final paramsJson = String.fromCharCodes(base64Decode(params));
     return CreateTask.fromJson(jsonDecode(paramsJson));
   }
