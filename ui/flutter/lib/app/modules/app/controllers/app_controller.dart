@@ -352,31 +352,51 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   Future<void> _handleDeepLink(Uri uri) async {
+    logger.i('=== Deep Link Received ===');
+    logger.i('Full URI: $uri');
+    logger.i('Scheme: ${uri.scheme}');
+    logger.i('Host: ${uri.host}');
+    logger.i('Path: ${uri.path}');
+    logger.i('Query Parameters: ${uri.queryParameters}');
+    logger.i('Fragment: ${uri.fragment}');
+    logger.i('========================');
+
     if (uri.scheme == "gopeed") {
+      logger.i('Handling gopeed:// scheme deep link');
       if (uri.path == "/create") {
+        logger.i('Path is /create - navigating to create dialog');
         final params = uri.queryParameters["params"];
         if (params?.isNotEmpty == true) {
-          _handleToCreate(params!);
+          logger.i('Has params parameter, decoding and handling create task');
+          logger.i('Encoded params length: ${params!.length}');
+          _handleToCreate(params);
           return;
         }
+        logger.i('No params, navigating to empty create dialog');
         Get.rootDelegate.offAndToNamed(Routes.CREATE);
         return;
       }
+      logger.i('Path is not /create (path: ${uri.path}), navigating to HOME');
       Get.rootDelegate.offAndToNamed(Routes.HOME);
       return;
     }
 
+    logger.i('Handling non-gopeed scheme: ${uri.scheme}');
     String path;
     if (uri.scheme == "magnet" ||
         uri.scheme == "http" ||
         uri.scheme == "https") {
       path = uri.toString();
+      logger.i('Direct URL scheme, path: $path');
     } else if (uri.scheme == "file") {
       path =
           Util.isWindows() ? Uri.decodeFull(uri.path.substring(1)) : uri.path;
+      logger.i('File scheme, decoded path: $path');
     } else {
       path = (await toFile(uri.toString())).path;
+      logger.i('Content URI converted to path: $path');
     }
+    logger.i('Redirecting to CREATE with URL: $path');
     Get.rootDelegate.offAndToNamed(Routes.REDIRECT,
         arguments: RedirectArgs(Routes.CREATE,
             arguments: CreateTask(req: Request(url: path))));
@@ -622,18 +642,37 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   CreateTask _decodeToCreatTaskParams(String params) {
-    // URLEncoding includes padding, so Dart's base64Decode works correctly
-    // This is compatible with base64.URLEncoding used by Go code
-    final paramsJson = String.fromCharCodes(base64Decode(params));
-    return CreateTask.fromJson(jsonDecode(paramsJson));
+    logger.i('=== Decoding CreateTask Params ===');
+    logger.i('Encoded params (first 100 chars): ${params.substring(0, params.length > 100 ? 100 : params.length)}');
+    logger.i('Encoded params length: ${params.length}');
+    try {
+      // URLEncoding includes padding, so Dart's base64Decode works correctly
+      // This is compatible with base64.URLEncoding used by Go code
+      final paramsJson = String.fromCharCodes(base64Decode(params));
+      logger.i('Decoded JSON (first 500 chars): ${paramsJson.substring(0, paramsJson.length > 500 ? 500 : paramsJson.length)}');
+      final createTask = CreateTask.fromJson(jsonDecode(paramsJson));
+      logger.i('Successfully decoded CreateTask:');
+      logger.i('  - URL: ${createTask.req?.url}');
+      logger.i('  - Name opt: ${createTask.opt?.name}');
+      logger.i('  - Path opt: ${createTask.opt?.path}');
+      logger.i('=================================');
+      return createTask;
+    } catch (e, stackTrace) {
+      logger.e('Failed to decode CreateTask params', e, stackTrace);
+      rethrow;
+    }
   }
 
   _handleToCreate(String params) {
+    logger.i('=== _handleToCreate called ===');
     final createTaskParams = _decodeToCreatTaskParams(params);
     _handleToCreate0(createTaskParams);
   }
 
   _handleToCreate0(CreateTask createTaskParams) {
+    logger.i('=== _handleToCreate0 called ===');
+    logger.i('Redirecting to Routes.REDIRECT -> Routes.CREATE with CreateTask');
+    logger.i('Target URL: ${createTaskParams.req?.url}');
     Get.rootDelegate.offAndToNamed(Routes.REDIRECT,
         arguments: RedirectArgs(Routes.CREATE, arguments: createTaskParams));
   }

@@ -19,6 +19,7 @@ import '../../../../api/model/resolve_result.dart';
 import '../../../../api/model/task.dart';
 import '../../../../database/database.dart';
 import '../../../../util/input_formatter.dart';
+import '../../../../util/log_util.dart';
 import '../../../../util/message.dart';
 import '../../../../util/util.dart';
 import '../../../routes/app_pages.dart';
@@ -68,6 +69,7 @@ class CreateView extends GetView<CreateController> {
 
   @override
   Widget build(BuildContext context) {
+    logger.i('=== CreateView.build called ===');
     final appController = Get.find<AppController>();
 
     if (_connectionsController.text.isEmpty) {
@@ -91,16 +93,25 @@ class CreateView extends GetView<CreateController> {
     }
 
     final CreateTask? routerParams = Get.rootDelegate.arguments();
+    logger.i('Route parameters (routerParams): $routerParams');
+    logger.i('Has routerParams: ${routerParams != null}');
+    logger.i('routerParams.req: ${routerParams?.req}');
+    logger.i('routerParams.req.url: ${routerParams?.req?.url}');
+    logger.i('routerParams.opt: ${routerParams?.opt}');
+
     if (routerParams?.req?.url.isNotEmpty ?? false) {
       // get url from route arguments
       final url = routerParams!.req!.url;
+      logger.i('Pre-populating URL from route params: $url');
       _urlController.text = url;
       _urlController.selection = TextSelection.fromPosition(
           TextPosition(offset: _urlController.text.length));
       final protocol = parseProtocol(url);
+      logger.i('Detected protocol: $protocol');
       if (protocol != null) {
         final extraHandlers = {
           Protocol.http: () {
+            logger.i('Handling HTTP protocol extra data');
             final reqExtra = ReqExtraHttp.fromJson(
                 jsonDecode(jsonEncode(routerParams.req!.extra)));
             _httpHeaderControllers.clear();
@@ -113,11 +124,14 @@ class CreateView extends GetView<CreateController> {
               );
             });
             _skipVerifyCertController.value = routerParams.req!.skipVerifyCert;
+            logger.i('HTTP headers pre-populated: ${reqExtra.header.keys}');
           },
           Protocol.bt: () {
+            logger.i('Handling BitTorrent protocol extra data');
             final reqExtra = ReqExtraBt.fromJson(
                 jsonDecode(jsonEncode(routerParams.req!.extra)));
             _btTrackerController.text = reqExtra.trackers.join("\n");
+            logger.i('BT trackers pre-populated: ${reqExtra.trackers.length} trackers');
           },
         };
         if (routerParams.req?.extra != null) {
@@ -126,6 +140,7 @@ class CreateView extends GetView<CreateController> {
 
         // handle options
         if (routerParams.opt != null) {
+          logger.i('Handling options from route params');
           _renameController.text = routerParams.opt!.name;
           _pathController.text = routerParams.opt!.path;
 
@@ -139,6 +154,7 @@ class CreateView extends GetView<CreateController> {
                     OptsExtraHttp.fromJson(jsonDecode(jsonEncode(opt.extra)));
                 _connectionsController.text =
                     optsExtraHttp.connections.toString();
+                logger.i('HTTP options pre-populated: connections=${optsExtraHttp.connections}');
               }
             },
             Protocol.bt: null,
@@ -149,6 +165,7 @@ class CreateView extends GetView<CreateController> {
         }
       }
     } else if (_urlController.text.isEmpty) {
+      logger.i('No route params URL, checking clipboard...');
       // read clipboard
       Clipboard.getData('text/plain').then((value) {
         if (value?.text?.isNotEmpty ?? false) {
@@ -157,7 +174,8 @@ class CreateView extends GetView<CreateController> {
                   value!.text!.startsWith(e) ||
                   value.text!.startsWith(e.toUpperCase()))
               .isNotEmpty) {
-            _urlController.text = value!.text!;
+            logger.i('Pre-populating URL from clipboard: ${value!.text}');
+            _urlController.text = value.text!;
             _urlController.selection = TextSelection.fromPosition(
                 TextPosition(offset: _urlController.text.length));
             return;
@@ -167,6 +185,7 @@ class CreateView extends GetView<CreateController> {
         }
       });
     }
+    logger.i('============================');
 
     return Scaffold(
       appBar: AppBar(
