@@ -361,6 +361,11 @@ class AppController extends GetxController with WindowListener, TrayListener {
     logger.i('Fragment: ${uri.fragment}');
     logger.i('========================');
 
+    // Ensure window is shown and focused when handling deep links
+    if (Util.isDesktop()) {
+      await windowManager.show();
+    }
+
     if (uri.scheme == "gopeed") {
       logger.i('Handling gopeed:// scheme deep link');
       if (uri.path == "/create") {

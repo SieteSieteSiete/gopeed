@@ -150,6 +150,27 @@ class SettingView extends GetView<SettingController> {
       );
     });
 
+    final buildDownloadConfirmation =
+        _buildConfigItem('downloadConfirmation', () {
+      return appController.downloaderConfig.value.extra.downloadConfirmationEnabled
+          ? 'on'.tr
+          : 'off'.tr;
+    }, (Key key) {
+      return Container(
+        alignment: Alignment.centerLeft,
+        child: Switch(
+          value:
+              appController.downloaderConfig.value.extra.downloadConfirmationEnabled,
+          onChanged: (bool value) async {
+            appController.downloaderConfig.update((val) {
+              val!.extra.downloadConfirmationEnabled = value;
+            });
+            await debounceSave();
+          },
+        ),
+      );
+    });
+
     // Archive auto extract configuration
     final buildAutoExtract = _buildConfigItem('autoExtract', () {
       return appController.downloaderConfig.value.archive.autoExtract
@@ -1393,6 +1414,7 @@ class SettingView extends GetView<SettingController> {
                             buildDownloadCategories(),
                             buildMaxRunning(),
                             buildDefaultDirectDownload(),
+                            buildDownloadConfirmation(),
                             buildBrowserExtension(),
                             buildAutoStartup(),
                             buildMenubarMode(),

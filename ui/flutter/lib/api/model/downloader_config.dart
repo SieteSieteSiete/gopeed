@@ -85,6 +85,7 @@ class ExtraConfig {
   bool defaultBtClient;
   bool notifyWhenNewVersion;
   List<DownloadCategory> downloadCategories;
+  bool downloadConfirmationEnabled;
 
   ExtraConfigBt bt = ExtraConfigBt();
   ExtraConfigGithubMirror githubMirror = ExtraConfigGithubMirror();
@@ -97,6 +98,7 @@ class ExtraConfig {
     this.defaultBtClient = true,
     this.notifyWhenNewVersion = true,
     this.downloadCategories = const [],
+    this.downloadConfirmationEnabled = false,
   });
 
   factory ExtraConfig.fromJson(Map<String, dynamic>? json) =>

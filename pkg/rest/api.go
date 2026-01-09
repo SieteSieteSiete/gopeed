@@ -1,14 +1,21 @@
 package rest
 
 import (
-	"github.com/GopeedLab/gopeed/pkg/base"
-	"github.com/GopeedLab/gopeed/pkg/download"
-	"github.com/GopeedLab/gopeed/pkg/rest/model"
-	"github.com/gorilla/mux"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"strings"
+
 	"io"
 	"net/http"
 	"net/url"
 	"runtime"
+
+	"github.com/GopeedLab/gopeed/pkg/base"
+	"github.com/GopeedLab/gopeed/pkg/download"
+	"github.com/GopeedLab/gopeed/pkg/rest/model"
+	"github.com/gorilla/mux"
+	"github.com/pkg/browser"
 )
 
 func Info(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +44,38 @@ func Resolve(w http.ResponseWriter, r *http.Request) {
 func CreateTask(w http.ResponseWriter, r *http.Request) {
 	var req model.CreateTask
 	if ReadJson(r, w, &req) {
+		// Check if download confirmation is enabled for browser extension requests
+		cfg, cfgErr := Downloader.GetConfig()
+		if cfgErr == nil {
+			// Check if download confirmation is enabled in settings
+			if confirmationEnabled, ok := cfg.Extra["downloadConfirmationEnabled"].(bool); ok && confirmationEnabled {
+				// Check if request is from browser extension (has Origin header)
+				origin := r.Header.Get("Origin")
+				isExtension := strings.HasPrefix(origin, "chrome-extension://") ||
+					strings.HasPrefix(origin, "moz-extension://") ||
+					strings.HasPrefix(origin, "safari-web-extension://")
+				if isExtension {
+					// Convert to deep link format
+					createTask := map[string]interface{}{
+						"req": req.Req,
+						"opt": req.Opt,
+					}
+
+					jsonData, marshalErr := json.Marshal(createTask)
+					if marshalErr == nil {
+						encodedParams := base64.URLEncoding.EncodeToString(jsonData)
+						deepLink := fmt.Sprintf("gopeed:///create?params=%s", encodedParams)
+
+						if browser.OpenURL(deepLink) == nil {
+							WriteJson(w, model.NewNilResult())
+							return
+						}
+					}
+				}
+			}
+		}
+
+		// Normal flow: process the task creation
 		var (
 			taskId string
 			err    error
