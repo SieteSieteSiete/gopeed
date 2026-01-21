@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:app_links/app_links.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,9 @@ import 'package:window_manager/window_manager.dart';
 import '../../../../api/api.dart';
 import '../../../../api/model/create_task.dart';
 import '../../../../api/model/downloader_config.dart';
+import '../../../../api/model/install_extension.dart';
 import '../../../../api/model/request.dart';
+import '../../../../api/model/result.dart';
 import '../../../../core/common/start_config.dart';
 import '../../../../core/libgopeed_boot.dart';
 import '../../../../database/database.dart';
@@ -291,7 +294,7 @@ class AppController extends GetxController with WindowListener, TrayListener {
           final jsonMeta = jsonDecode(meta);
           final silent = jsonMeta['silent'] as bool? ?? false;
           final params = await ctx.readText();
-          final createTaskParams = _decodeToCreatTaskParams(params);
+          final createTaskParams = CreateTask.fromJson(_decodeParams(params));
           if (!silent) {
             await windowManager.show();
             _handleToCreate0(createTaskParams);
@@ -301,6 +304,33 @@ class AppController extends GetxController with WindowListener, TrayListener {
             } catch (e) {
               logger.w(
                   "create task from extension fail", e, StackTrace.current);
+            }
+          }
+        },
+        "/forward": (ctx) async {
+          try {
+            final body = await ctx.readJSON();
+            final method = (body['method'] as String?)?.toUpperCase() ?? 'GET';
+            final path = (body['path'] as String?) ?? "/";
+            final data = body['data'];
+            final query = body['query'] as Map<String, dynamic>?;
+
+            // Forward request to gopeed REST API
+            final response = await forward(
+              path,
+              method: method,
+              data: data,
+              queryParameters: query,
+            );
+
+            // Return raw response
+            await ctx.writeJSON(response.data);
+          } catch (e) {
+            if (e is DioException && e.response != null) {
+              // Return API error response
+              await ctx.writeJSON(e.response!.data);
+            } else {
+              await ctx.writeJSON(Result(code: 1, msg: e.toString()).toJson());
             }
           }
         },
@@ -367,7 +397,7 @@ class AppController extends GetxController with WindowListener, TrayListener {
     }
 
     if (uri.scheme == "gopeed") {
-      logger.i('Handling gopeed:// scheme deep link');
+      // gopeed:///create?params=eyJyZXEiOnsidXJsIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9maWxlLnR4dCJ9fQ==
       if (uri.path == "/create") {
         logger.i('Path is /create - navigating to create dialog');
         final params = uri.queryParameters["params"];
@@ -381,7 +411,16 @@ class AppController extends GetxController with WindowListener, TrayListener {
         Get.rootDelegate.offAndToNamed(Routes.CREATE);
         return;
       }
-      logger.i('Path is not /create (path: ${uri.path}), navigating to HOME');
+      // gopeed:///extension?params=eyJ1cmwiOiJodHRwczovL2dpdGh1Yi5jb20vbW9ua2V5V2llL2dvcGVlZC1leHRlbnNpb24tYmlsaWJpbGkiLCJkZXZNb2RlIjpmYWxzZX0=
+      if (uri.path == "/extension") {
+        final params = uri.queryParameters["params"];
+        if (params?.isNotEmpty == true) {
+          _handleToExtension(params!);
+          return;
+        }
+        Get.rootDelegate.offAndToNamed(Routes.EXTENSION);
+        return;
+      }
       Get.rootDelegate.offAndToNamed(Routes.HOME);
       return;
     }
@@ -646,31 +685,15 @@ class AppController extends GetxController with WindowListener, TrayListener {
     await putConfig(downloaderConfig.value);
   }
 
-  CreateTask _decodeToCreatTaskParams(String params) {
-    logger.i('=== Decoding CreateTask Params ===');
-    logger.i('Encoded params (first 100 chars): ${params.substring(0, params.length > 100 ? 100 : params.length)}');
-    logger.i('Encoded params length: ${params.length}');
-    try {
-      // URLEncoding includes padding, so Dart's base64Decode works correctly
-      // This is compatible with base64.URLEncoding used by Go code
-      final paramsJson = String.fromCharCodes(base64Decode(params));
-      logger.i('Decoded JSON (first 500 chars): ${paramsJson.substring(0, paramsJson.length > 500 ? 500 : paramsJson.length)}');
-      final createTask = CreateTask.fromJson(jsonDecode(paramsJson));
-      logger.i('Successfully decoded CreateTask:');
-      logger.i('  - URL: ${createTask.req?.url}');
-      logger.i('  - Name opt: ${createTask.opt?.name}');
-      logger.i('  - Path opt: ${createTask.opt?.path}');
-      logger.i('=================================');
-      return createTask;
-    } catch (e, stackTrace) {
-      logger.e('Failed to decode CreateTask params', e, stackTrace);
-      rethrow;
-    }
+  Map<String, dynamic> _decodeParams(String params) {
+    final safeParams = params.replaceAll('"', "").replaceAll(" ", "+");
+    final paramsJson =
+        String.fromCharCodes(base64Decode(base64.normalize(safeParams)));
+    return jsonDecode(paramsJson);
   }
 
   _handleToCreate(String params) {
-    logger.i('=== _handleToCreate called ===');
-    final createTaskParams = _decodeToCreatTaskParams(params);
+    final createTaskParams = CreateTask.fromJson(_decodeParams(params));
     _handleToCreate0(createTaskParams);
   }
 
@@ -680,5 +703,11 @@ class AppController extends GetxController with WindowListener, TrayListener {
     logger.i('Target URL: ${createTaskParams.req?.url}');
     Get.rootDelegate.offAndToNamed(Routes.REDIRECT,
         arguments: RedirectArgs(Routes.CREATE, arguments: createTaskParams));
+  }
+
+  _handleToExtension(String params) {
+    final installExtension = InstallExtension.fromJson(_decodeParams(params));
+    Get.rootDelegate.offAndToNamed(Routes.REDIRECT,
+        arguments: RedirectArgs(Routes.EXTENSION, arguments: installExtension));
   }
 }

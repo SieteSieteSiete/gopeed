@@ -84,6 +84,7 @@ class ExtraConfig {
   bool defaultDirectDownload;
   bool defaultBtClient;
   bool notifyWhenNewVersion;
+  bool autoStartTasks;
   List<DownloadCategory> downloadCategories;
   bool downloadConfirmationEnabled;
 
@@ -97,6 +98,7 @@ class ExtraConfig {
     this.defaultDirectDownload = false,
     this.defaultBtClient = true,
     this.notifyWhenNewVersion = true,
+    this.autoStartTasks = false,
     this.downloadCategories = const [],
     this.downloadConfirmationEnabled = false,
   });

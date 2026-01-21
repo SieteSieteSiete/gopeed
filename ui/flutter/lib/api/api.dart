@@ -15,8 +15,8 @@ import 'model/downloader_config.dart';
 import 'model/extension.dart';
 import 'model/install_extension.dart';
 import 'model/login.dart';
-import 'model/request.dart';
 import 'model/resolve_result.dart';
+import 'model/resolve_task.dart';
 import 'model/result.dart';
 import 'model/switch_extension.dart';
 import 'model/task.dart';
@@ -135,9 +135,9 @@ Future<T> _parse<T>(
   }
 }
 
-Future<ResolveResult> resolve(Request request) async {
+Future<ResolveResult> resolve(ResolveTask resolveTask) async {
   return _parse<ResolveResult>(
-      () => _client.dio.post("api/v1/resolve", data: request),
+      () => _client.dio.post("api/v1/resolve", data: resolveTask),
       (data) => ResolveResult.fromJson(data));
 }
 
@@ -277,4 +277,20 @@ String join(String path) {
       ? baseUrl.substring(0, baseUrl.length - 1)
       : baseUrl;
   return "$cleanBaseUrl/${Util.cleanPath(path)}";
+}
+
+/// Generic request method for API proxy
+/// Directly forwards requests to gopeed REST API
+Future<Response> forward(
+  String path, {
+  String method = 'GET',
+  dynamic data,
+  Map<String, dynamic>? queryParameters,
+}) async {
+  return _client.dio.request(
+    path,
+    data: data,
+    queryParameters: queryParameters,
+    options: Options(method: method),
+  );
 }

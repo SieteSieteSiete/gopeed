@@ -39,6 +39,7 @@ const enUS = {
     'maxRunning': 'Max Running Tasks',
     'defaultDirectDownload': 'Check direct download by default',
     'downloadConfirmation': 'Download confirmation',
+    'autoStartTasks': 'Auto-start incomplete tasks on startup',
     'items': '@count items',
     'subscribeTracker': 'Subscribe Tracker',
     'subscribeFail':
@@ -135,6 +136,7 @@ const enUS = {
     'extracting': 'Extracting',
     'extractDone': 'Extraction completed',
     'extractError': 'Extraction failed',
+    'waitingParts': 'Waiting for parts',
     'name': 'Name',
     'size': 'Size',
     'unknown': 'Unknown',

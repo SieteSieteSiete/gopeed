@@ -30,9 +30,9 @@ func Info(w http.ResponseWriter, r *http.Request) {
 }
 
 func Resolve(w http.ResponseWriter, r *http.Request) {
-	var req base.Request
+	var req model.ResolveTask
 	if ReadJson(r, w, &req) {
-		rr, err := Downloader.Resolve(&req)
+		rr, err := Downloader.Resolve(req.Req, req.Opts)
 		if err != nil {
 			WriteJson(w, model.NewErrorResult(err.Error()))
 			return
@@ -81,9 +81,9 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 			err    error
 		)
 		if req.Rid != "" {
-			taskId, err = Downloader.Create(req.Rid, req.Opt)
+			taskId, err = Downloader.Create(req.Rid)
 		} else if req.Req != nil {
-			taskId, err = Downloader.CreateDirect(req.Req, req.Opt)
+			taskId, err = Downloader.CreateDirect(req.Req, req.Opts)
 		} else {
 			WriteJson(w, model.NewErrorResult("param invalid: rid or req", model.CodeInvalidParam))
 			return

@@ -195,6 +195,8 @@ class BuildTaskListView extends GetView {
           return 'extractDone'.tr;
         case ExtractStatus.error:
           return 'extractError'.tr;
+        case ExtractStatus.waitingParts:
+          return 'waitingParts'.tr;
         default:
           return '';
       }
@@ -210,6 +212,43 @@ class BuildTaskListView extends GetView {
       final total = task.meta.res!.size;
       return Util.fmtByte(task.progress.downloaded) +
           (total > 0 ? " / ${Util.fmtByte(total)}" : "");
+    }
+
+    // Get percentage text, e.g. " (50.5%)"
+    String getPercentText() {
+      final total = task.meta.res?.size ?? 0;
+      if (total <= 0 || isDone()) return "";
+      double p = getProgress();
+      return "(${(p * 100).toStringAsFixed(1)}%)";
+    }
+
+    // Get ETA text, e.g. "00:05:30"
+    String getEtaText() {
+      if (isDone()) return "";
+
+      final total = task.meta.res?.size ?? 0;
+      final downloaded = task.progress.downloaded;
+      final speed = task.progress.speed;
+
+      // If speed is 0 or file is downloaded, don't show time
+      if (total <= 0 || speed <= 0 || downloaded >= total) {
+        return "";
+      }
+
+      final remainingBytes = total - downloaded;
+      final remainingSeconds = remainingBytes ~/ speed;
+
+      // If time is too long (e.g. > 1 day), return > 1d
+      if (remainingSeconds > 86400) return "> 1d";
+
+      Duration duration = Duration(seconds: remainingSeconds);
+      String twoDigits(int n) => n.toString().padLeft(2, "0");
+
+      if (duration.inHours > 0) {
+        return "${twoDigits(duration.inHours)}:${twoDigits(duration.inMinutes.remainder(60))}:${twoDigits(duration.inSeconds.remainder(60))}";
+      } else {
+        return "${twoDigits(duration.inMinutes.remainder(60))}:${twoDigits(duration.inSeconds.remainder(60))}";
+      }
     }
 
     final taskController = Get.find<TaskController>();
@@ -306,18 +345,41 @@ class BuildTaskListView extends GetView {
                       )),
                   Row(
                     children: [
+                      // Left side: Progress text + Percentage
                       Expanded(
                           flex: 1,
-                          child: Text(
-                            getProgressText(),
-                            style: Get.textTheme.bodyLarge
-                                ?.copyWith(color: Get.theme.disabledColor),
+                          child: Row(
+                            children: [
+                              Text(
+                                getProgressText(),
+                                style: Get.textTheme.bodyLarge
+                                    ?.copyWith(color: Get.theme.disabledColor),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                getPercentText(),
+                                style: Get.textTheme.bodyLarge
+                                    ?.copyWith(color: Get.theme.disabledColor),
+                              ),
+                            ],
                           ).padding(left: 18)),
+                      // Right side: ETA + Speed + Actions
                       Expanded(
                           flex: 1,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
+                              Text(
+                                getEtaText(),
+                                style: Get.textTheme.titleSmall,
+                              ),
+                              Text(
+                                " | ",
+                                style: Get.textTheme.titleSmall?.copyWith(
+                                  color: Get.theme.disabledColor,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ).padding(horizontal: 4),
                               Text("${Util.fmtByte(task.progress.speed)} / s",
                                   style: Get.textTheme.titleSmall),
                               ...buildActions()
@@ -333,13 +395,19 @@ class BuildTaskListView extends GetView {
                   // Extraction status row
                   if (task.progress.extractStatus != ExtractStatus.none)
                     Builder(builder: (context) {
-                      final isExtracting =
-                          task.progress.extractStatus == ExtractStatus.extracting;
+                      final isExtracting = task.progress.extractStatus ==
+                          ExtractStatus.extracting;
                       final isExtractDone =
                           task.progress.extractStatus == ExtractStatus.done;
+                      final isWaitingParts = task.progress.extractStatus ==
+                          ExtractStatus.waitingParts;
                       final statusColor = isExtracting
                           ? Get.theme.colorScheme.primary
-                          : (isExtractDone ? Colors.green : Colors.red);
+                          : (isExtractDone
+                              ? Colors.green
+                              : isWaitingParts
+                                  ? Colors.orange
+                                  : Colors.red);
                       return Column(
                         children: [
                           Row(
@@ -367,7 +435,7 @@ class BuildTaskListView extends GetView {
                                 ).padding(left: 18),
                               ),
                             ],
-                          ).padding(top: 4, bottom: isExtracting ? 0 : 8),
+                          ).padding(top: 4, bottom: 8),
                           // Extraction progress bar
                           if (isExtracting)
                             LinearProgressIndicator(

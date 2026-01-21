@@ -39,6 +39,7 @@ const ruRU = {
     'useServerCtime': 'Использовать время сервера для создания файла',
     'maxRunning': 'Максимальное количество активных задач',
     'defaultDirectDownload': 'Прямая загрузка по умолчанию',
+    'autoStartTasks': 'Автоматически запускать незавершённые задачи при старте',
     'items': '@подсчет элементов',
     'subscribeTracker': 'Подпись трекера',
     'subscribeFail':
@@ -104,7 +105,8 @@ const ruRU = {
     'browserExtension': 'Расширение браузера',
     'launchAtStartup': 'Запускать при загрузке системы',
     'runAsMenubarApp': 'Запускать как приложение в строке меню',
-    'runAsMenubarAppDesc': 'Скрыть значок в Dock и запускать только в строке меню',
+    'runAsMenubarAppDesc':
+        'Скрыть значок в Dock и запускать только в строке меню',
     'seedConfig': 'Настройка раздачи',
     'seedKeep': 'Раздавать пока не остановлю вручную',
     'seedRatio': 'Коэффициент раздачи',
@@ -123,6 +125,7 @@ const ruRU = {
     'extracting': 'Распаковка',
     'extractDone': 'Распаковка завершена',
     'extractError': 'Ошибка распаковки',
+    'waitingParts': 'Ожидание частей',
     'name': 'Название',
     'size': 'Размер',
     'unknown': 'Неизвестно',

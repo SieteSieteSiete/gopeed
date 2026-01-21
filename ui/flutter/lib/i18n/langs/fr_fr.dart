@@ -38,6 +38,8 @@ const frFR = {
     'useServerCtime':
         'Utiliser l\'heure du serveur pour la création de fichier',
     'maxRunning': 'Tâches en cours maximum',
+    'autoStartTasks':
+        'Démarrer automatiquement les tâches incomplètes au lancement',
     'items': '@count éléments',
     'subscribeTracker': 'S\'abonner au tracker',
     'subscribeFail':
@@ -100,7 +102,8 @@ const frFR = {
     'browserExtension': 'Extension du navigateur',
     'launchAtStartup': 'Lancer au démarrage',
     'runAsMenubarApp': 'Exécuter en tant qu\'application de barre de menus',
-    'runAsMenubarAppDesc': 'Masquer l\'icône du Dock et exécuter uniquement dans la barre de menus',
+    'runAsMenubarAppDesc':
+        'Masquer l\'icône du Dock et exécuter uniquement dans la barre de menus',
     'skipVerifyCert': 'Ignorer la vérification du certificat',
     'archives': 'Archives',
     'autoExtract': 'Extraire automatiquement les archives',
@@ -110,6 +113,7 @@ const frFR = {
     'extracting': 'Extraction en cours',
     'extractDone': 'Extraction terminée',
     'extractError': 'Échec de l\'extraction',
+    'waitingParts': 'En attente des parties',
     'insertPlaceholder': 'Insérer un espace réservé',
     'placeholderYear': 'Année en cours',
     'placeholderMonth': 'Mois en cours (01-12)',

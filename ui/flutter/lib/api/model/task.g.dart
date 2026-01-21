@@ -80,4 +80,5 @@ const _$ExtractStatusEnumMap = {
   ExtractStatus.extracting: 'extracting',
   ExtractStatus.done: 'done',
   ExtractStatus.error: 'error',
+  ExtractStatus.waitingParts: 'waitingParts',
 };

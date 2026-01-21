@@ -16,6 +16,7 @@ import '../../../../api/model/downloader_config.dart';
 import '../../../../api/model/options.dart';
 import '../../../../api/model/request.dart';
 import '../../../../api/model/resolve_result.dart';
+import '../../../../api/model/resolve_task.dart';
 import '../../../../api/model/task.dart';
 import '../../../../database/database.dart';
 import '../../../../util/input_formatter.dart';
@@ -83,23 +84,16 @@ class CreateView extends GetView<CreateController> {
       _pathController.text = renderPathPlaceholders(downloadDir);
     }
     // Initialize archive settings from global config if not already set
-    if (_autoExtractController.value == null) {
-      _autoExtractController.value =
-          appController.downloaderConfig.value.archive.autoExtract;
-    }
-    if (_deleteAfterExtractController.value == null) {
-      _deleteAfterExtractController.value =
-          appController.downloaderConfig.value.archive.deleteAfterExtract;
-    }
+    _autoExtractController.value ??=
+        appController.downloaderConfig.value.archive.autoExtract;
+    _deleteAfterExtractController.value ??=
+        appController.downloaderConfig.value.archive.deleteAfterExtract;
 
+    // Handle pending create task from deep link
     final CreateTask? routerParams = Get.rootDelegate.arguments();
-    logger.i('Route parameters (routerParams): $routerParams');
-    logger.i('Has routerParams: ${routerParams != null}');
-    logger.i('routerParams.req: ${routerParams?.req}');
-    logger.i('routerParams.req.url: ${routerParams?.req?.url}');
-    logger.i('routerParams.opt: ${routerParams?.opt}');
-
-    if (routerParams?.req?.url.isNotEmpty ?? false) {
+    if ((routerParams?.req?.url.isNotEmpty ?? false) &&
+        !controller.pendingCreateHandled) {
+      controller.pendingCreateHandled = true;
       // get url from route arguments
       final url = routerParams!.req!.url;
       logger.i('Pre-populating URL from route params: $url');
@@ -139,14 +133,13 @@ class CreateView extends GetView<CreateController> {
         }
 
         // handle options
-        if (routerParams.opt != null) {
-          logger.i('Handling options from route params');
-          _renameController.text = routerParams.opt!.name;
-          _pathController.text = routerParams.opt!.path;
+        if (routerParams.opts != null) {
+          _renameController.text = routerParams.opts!.name;
+          _pathController.text = routerParams.opts!.path;
 
           final optionsHandlers = {
             Protocol.http: () {
-              final opt = routerParams.opt!;
+              final opt = routerParams.opts!;
               _renameController.text = opt.name;
               _pathController.text = opt.path;
               if (opt.extra != null) {
@@ -159,7 +152,7 @@ class CreateView extends GetView<CreateController> {
             },
             Protocol.bt: null,
           };
-          if (routerParams.opt?.extra != null) {
+          if (routerParams.opts?.extra != null) {
             optionsHandlers[protocol]?.call();
           }
         }
@@ -645,10 +638,11 @@ class CreateView extends GetView<CreateController> {
                                             child: CompactCheckbox(
                                               label: 'autoExtract'.tr,
                                               value: _autoExtractController
-                                                  .value ?? false,
+                                                      .value ??
+                                                  false,
                                               onChanged: (bool? value) {
-                                                _autoExtractController
-                                                    .value = value ?? false;
+                                                _autoExtractController.value =
+                                                    value ?? false;
                                               },
                                               textStyle: const TextStyle(
                                                 color: Colors.grey,
@@ -657,33 +651,49 @@ class CreateView extends GetView<CreateController> {
                                           ),
                                           Obx(
                                             () => Visibility(
-                                              visible: _autoExtractController.value ?? false,
+                                              visible: _autoExtractController
+                                                      .value ??
+                                                  false,
                                               child: Column(
                                                 children: [
                                                   Padding(
                                                     padding:
-                                                        const EdgeInsets.only(top: 10),
+                                                        const EdgeInsets.only(
+                                                            top: 10),
                                                     child: TextFormField(
-                                                      controller: _archivePasswordController,
+                                                      controller:
+                                                          _archivePasswordController,
                                                       obscureText: true,
-                                                      decoration: InputDecoration(
-                                                        labelText: 'archivePassword'.tr,
-                                                        hintText: 'archivePasswordHint'.tr,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        labelText:
+                                                            'archivePassword'
+                                                                .tr,
+                                                        hintText:
+                                                            'archivePasswordHint'
+                                                                .tr,
                                                       ),
                                                     ),
                                                   ),
                                                   Padding(
                                                     padding:
-                                                        const EdgeInsets.only(top: 10),
+                                                        const EdgeInsets.only(
+                                                            top: 10),
                                                     child: CompactCheckbox(
-                                                      label: 'deleteAfterExtract'.tr,
-                                                      value: _deleteAfterExtractController
-                                                          .value ?? false,
+                                                      label:
+                                                          'deleteAfterExtract'
+                                                              .tr,
+                                                      value:
+                                                          _deleteAfterExtractController
+                                                                  .value ??
+                                                              false,
                                                       onChanged: (bool? value) {
                                                         _deleteAfterExtractController
-                                                            .value = value ?? false;
+                                                                .value =
+                                                            value ?? false;
                                                       },
-                                                      textStyle: const TextStyle(
+                                                      textStyle:
+                                                          const TextStyle(
                                                         color: Colors.grey,
                                                       ),
                                                     ),
@@ -816,29 +826,34 @@ class CreateView extends GetView<CreateController> {
         */
         final isMultiLine = urls.length > 1;
         final isDirect = controller.directDownload.value || isMultiLine;
+        final opt = Options(
+          name: isMultiLine ? "" : _renameController.text,
+          path: _pathController.text,
+          selectFiles: [],
+          extra: parseReqOptsExtra(),
+        );
         if (isDirect) {
           await Future.wait(urls.map((url) {
             return createTask(CreateTask(
-                req: Request(
-                  url: url,
-                  extra: parseReqExtra(url),
-                  proxy: parseProxy(),
-                  skipVerifyCert: _skipVerifyCertController.value,
-                ),
-                opt: Options(
-                  name: isMultiLine ? "" : _renameController.text,
-                  path: _pathController.text,
-                  selectFiles: [],
-                  extra: parseReqOptsExtra(),
-                )));
+              req: Request(
+                url: url,
+                extra: parseReqExtra(url),
+                proxy: parseProxy(),
+                skipVerifyCert: _skipVerifyCertController.value,
+              ),
+              opts: opt,
+            ));
           }));
           Get.rootDelegate.offNamed(Routes.TASK);
         } else {
-          final rr = await resolve(Request(
-            url: submitUrl,
-            extra: parseReqExtra(_urlController.text),
-            proxy: parseProxy(),
-            skipVerifyCert: _skipVerifyCertController.value,
+          final rr = await resolve(ResolveTask(
+            req: Request(
+              url: submitUrl,
+              extra: parseReqExtra(_urlController.text),
+              proxy: parseProxy(),
+              skipVerifyCert: _skipVerifyCertController.value,
+            ),
+            opts: opt,
           ));
           await _showResolveDialog(rr);
         }
@@ -985,7 +1000,7 @@ class CreateView extends GetView<CreateController> {
                             } else {
                               await createTask(CreateTask(
                                   rid: rr.id,
-                                  opt: Options(
+                                  opts: Options(
                                       name: _renameController.text,
                                       path: _pathController.text,
                                       selectFiles: controller.selectedIndexes,
@@ -1050,7 +1065,8 @@ class CreateView extends GetView<CreateController> {
                     padding: const EdgeInsets.only(right: 8),
                     child: OutlinedButton(
                       onPressed: () {
-                        _pathController.text = renderPathPlaceholders(category.path);
+                        _pathController.text =
+                            renderPathPlaceholders(category.path);
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(

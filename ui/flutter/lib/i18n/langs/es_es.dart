@@ -38,6 +38,7 @@ const esES = {
     'connections': 'Conexiones',
     'useServerCtime': 'Usar tiempo del servidor para la creación de archivos',
     'maxRunning': 'Máximo de Tareas en Ejecución',
+    'autoStartTasks': 'Iniciar automáticamente tareas incompletas al arrancar',
     'items': '@count elementos',
     'subscribeTracker': 'Suscribirse al Tracker',
     'subscribeFail':
@@ -100,7 +101,8 @@ const esES = {
     'browserExtension': 'Extensión del Navegador',
     'launchAtStartup': 'Iniciar al Arranque',
     'runAsMenubarApp': 'Ejecutar como aplicación de barra de menú',
-    'runAsMenubarAppDesc': 'Ocultar icono del Dock y ejecutar solo en la barra de menú',
+    'runAsMenubarAppDesc':
+        'Ocultar icono del Dock y ejecutar solo en la barra de menú',
     'seedConfig': 'Configuración de Semilla',
     'seedKeep': 'Mantener sembrado',
     'seedRatio': 'Ratio de semilla',
@@ -118,6 +120,7 @@ const esES = {
     'extracting': 'Extrayendo',
     'extractDone': 'Extracción completada',
     'extractError': 'Error en la extracción',
+    'waitingParts': 'Esperando partes',
     'insertPlaceholder': 'Insertar marcador de posición',
     'placeholderYear': 'Año actual',
     'placeholderMonth': 'Mes actual (01-12)',
