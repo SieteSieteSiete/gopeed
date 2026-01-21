@@ -58,7 +58,7 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 					// Convert to deep link format
 					createTask := map[string]interface{}{
 						"req": req.Req,
-						"opt": req.Opt,
+						"opt": req.Opts,
 					}
 
 					jsonData, marshalErr := json.Marshal(createTask)

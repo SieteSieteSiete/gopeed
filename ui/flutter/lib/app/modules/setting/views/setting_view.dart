@@ -1434,7 +1434,6 @@ class SettingView extends GetView<SettingController> {
                             buildDownloadCategories(),
                             buildMaxRunning(),
                             buildDefaultDirectDownload(),
-                            buildDownloadConfirmation(),
                             buildAutoStartTasks(),
                             buildBrowserExtension(),
                             buildAutoStartup(),
@@ -1525,6 +1524,7 @@ class SettingView extends GetView<SettingController> {
                           Util.isDesktop() && startCfg.value.network == 'tcp'
                               ? buildApiToken()
                               : null,
+                          buildDownloadConfirmation(),
                         ]),
                       )),
                       Text('developer'.tr),

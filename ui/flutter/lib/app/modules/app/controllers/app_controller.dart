@@ -686,9 +686,8 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   Map<String, dynamic> _decodeParams(String params) {
-    final safeParams = params.replaceAll('"', "").replaceAll(" ", "+");
     final paramsJson =
-        String.fromCharCodes(base64Decode(base64.normalize(safeParams)));
+        String.fromCharCodes(base64Decode(base64.normalize(params)));
     return jsonDecode(paramsJson);
   }
 
