@@ -205,6 +205,9 @@ func (d *Downloader) Setup() error {
 	}
 	d.extensions = extensions
 
+	// Auto-cleanup non-existing tasks on startup
+	d.cleanupNonExistingTasks()
+
 	// handle upload
 	go func() {
 		for _, task := range d.tasks {
@@ -269,6 +272,51 @@ func (d *Downloader) Setup() error {
 		}
 	}()
 	return nil
+}
+
+// cleanupNonExistingTasks checks for tasks whose files are missing on disk
+// and removes them if the AutoCleanMissingFiles config is enabled.
+func (d *Downloader) cleanupNonExistingTasks() {
+	cfg, err := d.GetConfig()
+	if err != nil {
+		return
+	}
+
+	// If the feature is disabled, do nothing
+	if !cfg.AutoDeleteMissingFileTasks {
+		return
+	}
+
+	var tasksToDelete []string
+
+	for _, task := range d.tasks {
+		if task.Meta == nil || task.Meta.Res == nil {
+			continue
+		}
+
+		var targetPath string
+		// Determine if it is a single file or a directory (multi-file torrent)
+		if task.Meta.Res.Name != "" {
+			targetPath = task.Meta.FolderPath()
+		} else {
+			targetPath = task.Meta.SingleFilepath()
+		}
+
+		// Skip if path is empty
+		if targetPath == "" {
+			continue
+		}
+
+		// Check if file/folder exists
+		if _, err := os.Stat(targetPath); os.IsNotExist(err) {
+			d.Logger.Info().Msgf("Auto-cleanup: task %s file not found at %s, removing from list", task.ID, targetPath)
+			tasksToDelete = append(tasksToDelete, task.ID)
+		}
+	}
+
+	if len(tasksToDelete) > 0 {
+		d.Delete(&TaskFilter{IDs: tasksToDelete}, false)
+	}
 }
 
 func (d *Downloader) parseFm(url string) (fetcher.FetcherManager, error) {
@@ -909,7 +957,26 @@ func (d *Downloader) watch(task *Task) {
 
 	if e, ok := task.Meta.Opts.Extra.(*http.OptsExtra); ok {
 		downloadFilePath := task.Meta.SingleFilepath()
-		if e.AutoTorrent && strings.HasSuffix(downloadFilePath, ".torrent") {
+
+		cfg, _ := d.GetConfig()
+
+		// Determine if auto-torrent is enabled (use global config if not explicitly set)
+		autoTorrentEnabled := false
+		if e.AutoTorrent != nil {
+			autoTorrentEnabled = *e.AutoTorrent
+		} else if cfg != nil && cfg.AutoTorrent != nil {
+			autoTorrentEnabled = cfg.AutoTorrent.Enable
+		}
+
+		if autoTorrentEnabled && strings.HasSuffix(downloadFilePath, ".torrent") {
+			// Determine if should delete torrent file after creating BT task
+			shouldDelete := false
+			if e.DeleteTorrentAfterDownload != nil {
+				shouldDelete = *e.DeleteTorrentAfterDownload
+			} else if cfg != nil && cfg.AutoTorrent != nil {
+				shouldDelete = cfg.AutoTorrent.DeleteAfterDownload
+			}
+
 			go func() {
 				_, err2 := d.CreateDirect(
 					&base.Request{
@@ -921,14 +988,26 @@ func (d *Downloader) watch(task *Task) {
 					})
 				if err2 != nil {
 					d.Logger.Error().Err(err2).Msgf("auto create torrent task failed, task id: %s", task.ID)
+					return
 				}
 
+				if shouldDelete {
+					d.Delete(&TaskFilter{IDs: []string{task.ID}}, true)
+				}
 			}()
+		}
+
+		// Determine if auto-extract is enabled (use global config if not explicitly set)
+		autoExtractEnabled := false
+		if e.AutoExtract != nil {
+			autoExtractEnabled = *e.AutoExtract
+		} else if cfg != nil && cfg.Archive != nil {
+			autoExtractEnabled = cfg.Archive.AutoExtract
 		}
 
 		// Auto-extract archive files using the extraction queue
 		// This ensures only one extraction runs at a time to prevent resource exhaustion
-		if e.AutoExtract && isArchiveFile(downloadFilePath) {
+		if autoExtractEnabled && isArchiveFile(downloadFilePath) {
 			d.enqueueExtraction(task, downloadFilePath, e)
 		}
 	}

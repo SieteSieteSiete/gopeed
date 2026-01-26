@@ -26,6 +26,9 @@ const faIR = {
     'downloadDir': 'دایرکتوری دانلود',
     'downloadDirValid': 'لطفا دایرکتوری دانلود را انتخاب کنید',
     'connections': 'اتصالات',
+    'autoTorrentEnable': 'ایجاد خودکار وظایف BT از فایل‌های .torrent',
+    'autoTorrentDeleteAfterDownload': 'حذف فایل .torrent پس از ایجاد وظیفه BT',
+    'autoDeleteMissingFileTasks': 'حذف خودکار وظایف با فایل‌های گم شده',
     'items': '@count آیتم ها',
     'subscribeTracker': 'Subscribe Tracker',
     'subscribeFail':

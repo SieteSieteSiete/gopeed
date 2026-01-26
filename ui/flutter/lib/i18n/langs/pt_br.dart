@@ -39,6 +39,12 @@ const ptBR = {
     'useServerCtime': 'Use server time for file creation',
     'maxRunning': 'Máximo de Tarefas Simultâneas',
     'defaultDirectDownload': 'Marcar download direto por padrão',
+    'autoTorrentEnable':
+        'Criar automaticamente tarefas BT de arquivos .torrent',
+    'autoTorrentDeleteAfterDownload':
+        'Excluir arquivo .torrent após criação da tarefa BT',
+    'autoDeleteMissingFileTasks':
+        'Excluir automaticamente tarefas com arquivos ausentes',
     'items': '@count itens',
     'subscribeTracker': 'Assinar Rastreador',
     'subscribeFail':

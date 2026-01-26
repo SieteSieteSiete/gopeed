@@ -40,6 +40,10 @@ const enUS = {
     'defaultDirectDownload': 'Check direct download by default',
     'downloadConfirmation': 'Download confirmation',
     'autoStartTasks': 'Auto-start incomplete tasks on startup',
+    'autoTorrentEnable': 'Auto create BT tasks from .torrent files',
+    'autoTorrentDeleteAfterDownload':
+        'Delete .torrent file after BT task creation',
+    'autoDeleteMissingFileTasks': 'Auto delete missing file tasks',
     'items': '@count items',
     'subscribeTracker': 'Subscribe Tracker',
     'subscribeFail':
@@ -56,6 +60,8 @@ const enUS = {
     'themeDark': 'Dark',
     'locale': 'Language',
     'notifyWhenNewVersion': 'Notify for updates',
+    'analyticsEnabled': 'Upload Statistics',
+    'analyticsEnabledDesc': 'Share anonymous usage data to help us improve',
     'about': 'About',
     'homepage': 'Homepage',
     'version': 'Version',

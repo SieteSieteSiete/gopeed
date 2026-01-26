@@ -32,7 +32,7 @@ Visit ✈ [Official Website](https://gopeed.com) | 📖 [Official Docs](https://
     </tr>
     <tr>
       <td>arm64</td>
-      <td><a href="https://gopeed.com/api/download?tpl=Gopeed-v$NEXT_PATCH_VERSION-windows-arm64.zip">📥</a></td>
+      <td><a href="https://gopeed.com/api/download?tpl=Gopeed-$version-windows-arm64.zip">📥</a></td>
     </tr>
     <tr>
       <td rowspan="2"><code>Portable</code></td>
@@ -41,7 +41,7 @@ Visit ✈ [Official Website](https://gopeed.com) | 📖 [Official Docs](https://
     </tr>
     <tr>
       <td>arm64</td>
-      <td><a href="https://gopeed.com/api/download?tpl=Gopeed-v$NEXT_PATCH_VERSION-windows-arm64-portable.zip">📥</a></td>
+      <td><a href="https://gopeed.com/api/download?tpl=Gopeed-$version-windows-arm64-portable.zip">📥</a></td>
     </tr>
     <tr>
       <td rowspan="3">🍎 MacOS</td>
@@ -202,7 +202,7 @@ This project is divided into two parts, the front end uses `flutter`, the back e
 ### 🌍 Environment
 
 1. Golang 1.24+
-2. Flutter 3.24+
+2. Flutter 3.38+
 
 ### 📋 Clone
 

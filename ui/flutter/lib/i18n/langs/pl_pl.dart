@@ -36,6 +36,11 @@ const plPL = {
     'connections': 'Połączenia',
     'useServerCtime': 'Użyj czasu serwera do utworzenia pliku',
     'maxRunning': 'Maksymalna liczba zadań',
+    'autoTorrentEnable': 'Automatyczne tworzenie zadań BT z plików .torrent',
+    'autoTorrentDeleteAfterDownload':
+        'Usuń plik .torrent po utworzeniu zadania BT',
+    'autoDeleteMissingFileTasks':
+        'Automatycznie usuwaj zadania z brakującymi plikami',
     'items': '@count items',
     'subscribeTracker': 'Subskrybuj tracker',
     'subscribeFail': 'Błąd subskrypcji, sprawdź łączność z internetem',

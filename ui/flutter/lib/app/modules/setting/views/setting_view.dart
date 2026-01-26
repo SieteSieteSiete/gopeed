@@ -14,6 +14,7 @@ import 'package:window_manager/window_manager.dart';
 import '../../../../api/api.dart' as api;
 import '../../../../api/model/downloader_config.dart';
 import '../../../../database/database.dart';
+import '../../../../util/analytics.dart';
 import '../../../../i18n/message.dart';
 import '../../../../util/input_formatter.dart';
 import '../../../../util/locale_manager.dart';
@@ -183,6 +184,71 @@ class SettingView extends GetView<SettingController> {
           onChanged: (bool value) async {
             appController.downloaderConfig.update((val) {
               val!.extra.autoStartTasks = value;
+            });
+            await debounceSave();
+          },
+        ),
+      );
+    });
+
+    // AutoTorrent: Enable auto create BT tasks from .torrent files
+    final buildAutoTorrentEnable = _buildConfigItem('autoTorrentEnable', () {
+      return appController.downloaderConfig.value.autoTorrent.enable
+          ? 'on'.tr
+          : 'off'.tr;
+    }, (Key key) {
+      return Container(
+        alignment: Alignment.centerLeft,
+        child: Switch(
+          value: appController.downloaderConfig.value.autoTorrent.enable,
+          onChanged: (bool value) async {
+            appController.downloaderConfig.update((val) {
+              val!.autoTorrent.enable = value;
+            });
+            await debounceSave();
+          },
+        ),
+      );
+    });
+
+    // AutoTorrent: Delete .torrent file after BT task creation
+    final buildAutoTorrentDeleteAfterDownload =
+        _buildConfigItem('autoTorrentDeleteAfterDownload', () {
+      return appController
+              .downloaderConfig.value.autoTorrent.deleteAfterDownload
+          ? 'on'.tr
+          : 'off'.tr;
+    }, (Key key) {
+      return Container(
+        alignment: Alignment.centerLeft,
+        child: Switch(
+          value: appController
+              .downloaderConfig.value.autoTorrent.deleteAfterDownload,
+          onChanged: (bool value) async {
+            appController.downloaderConfig.update((val) {
+              val!.autoTorrent.deleteAfterDownload = value;
+            });
+            await debounceSave();
+          },
+        ),
+      );
+    });
+
+    // New: Auto Delete Missing File Tasks
+    final buildAutoDeleteMissingFileTasks =
+        _buildConfigItem('autoDeleteMissingFileTasks', () {
+      return appController.downloaderConfig.value.autoDeleteMissingFileTasks
+          ? 'on'.tr
+          : 'off'.tr;
+    }, (Key key) {
+      return Container(
+        alignment: Alignment.centerLeft,
+        child: Switch(
+          value:
+              appController.downloaderConfig.value.autoDeleteMissingFileTasks,
+          onChanged: (bool value) async {
+            appController.downloaderConfig.update((val) {
+              val!.autoDeleteMissingFileTasks = value;
             });
             await debounceSave();
           },
@@ -815,6 +881,21 @@ class SettingView extends GetView<SettingController> {
       );
     });
 
+    final analyticsEnabled = Database.instance.getAnalyticsEnabled().obs;
+    buildAnalyticsEnabled() {
+      return ListTile(
+        title: Text('analyticsEnabled'.tr),
+        subtitle: Text('analyticsEnabledDesc'.tr),
+        trailing: Obx(() => Switch(
+              value: analyticsEnabled.value,
+              onChanged: (bool value) {
+                analyticsEnabled.value = value;
+                Database.instance.saveAnalyticsEnabled(value);
+              },
+            )),
+      );
+    }
+
     buildThanks() {
       const thankPage =
           'https://github.com/GopeedLab/gopeed/graphs/contributors';
@@ -1435,6 +1516,13 @@ class SettingView extends GetView<SettingController> {
                             buildMaxRunning(),
                             buildDefaultDirectDownload(),
                             buildAutoStartTasks(),
+                            buildAutoTorrentEnable(),
+                            Obx(() => Visibility(
+                                  visible: appController.downloaderConfig.value
+                                      .autoTorrent.enable,
+                                  child: buildAutoTorrentDeleteAfterDownload(),
+                                )),
+                            buildAutoDeleteMissingFileTasks(),
                             buildBrowserExtension(),
                             buildAutoStartup(),
                             buildMenubarMode(),
@@ -1445,7 +1533,11 @@ class SettingView extends GetView<SettingController> {
                             child: Column(
                           children: _addDivider([
                             buildAutoExtract(),
-                            buildDeleteAfterExtract(),
+                            Obx(() => Visibility(
+                                  visible: appController.downloaderConfig.value
+                                      .archive.autoExtract,
+                                  child: buildDeleteAfterExtract(),
+                                )),
                           ]),
                         )),
                         const Text('HTTP'),
@@ -1483,6 +1575,7 @@ class SettingView extends GetView<SettingController> {
                             buildHomepage(),
                             buildVersion(),
                             buildAutoCheckUpdate(),
+                            if (Config.isConfigured) buildAnalyticsEnabled(),
                             buildThanks(),
                           ]),
                         )),

@@ -40,6 +40,10 @@ const ruRU = {
     'maxRunning': 'Максимальное количество активных задач',
     'defaultDirectDownload': 'Прямая загрузка по умолчанию',
     'autoStartTasks': 'Автоматически запускать незавершённые задачи при старте',
+    'autoTorrentEnable': 'Автоматически создавать BT-задачи из .torrent файлов',
+    'autoTorrentDeleteAfterDownload':
+        'Удалить .torrent файл после создания BT-задачи',
+    'autoDeleteMissingFileTasks': 'Автоудаление задач с отсутствующими файлами',
     'items': '@подсчет элементов',
     'subscribeTracker': 'Подпись трекера',
     'subscribeFail':

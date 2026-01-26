@@ -37,6 +37,11 @@ const itIT = {
     'connections': 'Connessioni',
     'useServerCtime': "Utilizza l'ora del server per la creazione dei file",
     'maxRunning': 'Numero massimo di attività in esecuzione',
+    'autoTorrentEnable': 'Crea automaticamente attività BT da file .torrent',
+    'autoTorrentDeleteAfterDownload':
+        'Elimina file .torrent dopo creazione attività BT',
+    'autoDeleteMissingFileTasks':
+        'Elimina automaticamente le attività con file mancanti',
     'items': '@count elementi',
     'subscribeTracker': 'Iscriviti al tracker',
     'subscribeFail':
