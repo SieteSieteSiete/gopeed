@@ -697,9 +697,6 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   _handleToCreate0(CreateTask createTaskParams) {
-    logger.i('=== _handleToCreate0 called ===');
-    logger.i('Redirecting to Routes.REDIRECT -> Routes.CREATE with CreateTask');
-    logger.i('Target URL: ${createTaskParams.req?.url}');
     Get.rootDelegate.offAndToNamed(Routes.REDIRECT,
         arguments: RedirectArgs(Routes.CREATE, arguments: createTaskParams));
   }
