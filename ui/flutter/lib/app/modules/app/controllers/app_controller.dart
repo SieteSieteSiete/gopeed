@@ -407,15 +407,6 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   Future<void> _handleDeepLink(Uri uri) async {
-    logger.i('=== Deep Link Received ===');
-    logger.i('Full URI: $uri');
-    logger.i('Scheme: ${uri.scheme}');
-    logger.i('Host: ${uri.host}');
-    logger.i('Path: ${uri.path}');
-    logger.i('Query Parameters: ${uri.queryParameters}');
-    logger.i('Fragment: ${uri.fragment}');
-    logger.i('========================');
-
     // Ensure window is shown and focused when handling deep links
     if (Util.isDesktop()) {
       await windowManager.show();
@@ -424,15 +415,11 @@ class AppController extends GetxController with WindowListener, TrayListener {
     if (uri.scheme == "gopeed") {
       // gopeed:///create?params=eyJyZXEiOnsidXJsIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9maWxlLnR4dCJ9fQ==
       if (uri.path == "/create") {
-        logger.i('Path is /create - navigating to create dialog');
         final params = uri.queryParameters["params"];
         if (params?.isNotEmpty == true) {
-          logger.i('Has params parameter, decoding and handling create task');
-          logger.i('Encoded params length: ${params!.length}');
-          _handleToCreate(params);
+          _handleToCreate(params!);
           return;
         }
-        logger.i('No params, navigating to empty create dialog');
         Get.rootDelegate.offAndToNamed(Routes.CREATE);
         return;
       }
@@ -450,22 +437,17 @@ class AppController extends GetxController with WindowListener, TrayListener {
       return;
     }
 
-    logger.i('Handling non-gopeed scheme: ${uri.scheme}');
     String path;
     if (uri.scheme == "magnet" ||
         uri.scheme == "http" ||
         uri.scheme == "https") {
       path = uri.toString();
-      logger.i('Direct URL scheme, path: $path');
     } else if (uri.scheme == "file") {
       path =
           Util.isWindows() ? Uri.decodeFull(uri.path.substring(1)) : uri.path;
-      logger.i('File scheme, decoded path: $path');
     } else {
       path = (await toFile(uri.toString())).path;
-      logger.i('Content URI converted to path: $path');
     }
-    logger.i('Redirecting to CREATE with URL: $path');
     Get.rootDelegate.offAndToNamed(Routes.REDIRECT,
         arguments: RedirectArgs(Routes.CREATE,
             arguments: CreateTask(req: Request(url: path))));

@@ -1618,7 +1618,7 @@ class SettingView extends GetView<SettingController> {
                           Util.isDesktop() && startCfg.value.network == 'tcp'
                               ? buildApiToken()
                               : null,
-                          buildDownloadConfirmation(),
+                          buildShowCreateTaskDialog(),
                         ]),
                       )),
                       Text('developer'.tr),
