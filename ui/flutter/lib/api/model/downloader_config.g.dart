@@ -92,8 +92,8 @@ ExtraConfig _$ExtraConfigFromJson(Map<String, dynamic> json) => ExtraConfig(
               ?.map((e) => DownloadCategory.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      downloadConfirmationEnabled:
-          json['downloadConfirmationEnabled'] as bool? ?? false,
+      showCreateTaskDialogEnabled:
+          json['showCreateTaskDialogEnabled'] as bool? ?? false,
     )
       ..bt = ExtraConfigBt.fromJson(json['bt'] as Map<String, dynamic>)
       ..githubMirror = ExtraConfigGithubMirror.fromJson(
@@ -110,7 +110,7 @@ Map<String, dynamic> _$ExtraConfigToJson(ExtraConfig instance) =>
       'autoStartTasks': instance.autoStartTasks,
       'downloadCategories':
           instance.downloadCategories.map((e) => e.toJson()).toList(),
-      'downloadConfirmationEnabled': instance.downloadConfirmationEnabled,
+      'showCreateTaskDialogEnabled': instance.showCreateTaskDialogEnabled,
       'bt': instance.bt.toJson(),
       'githubMirror': instance.githubMirror.toJson(),
     };

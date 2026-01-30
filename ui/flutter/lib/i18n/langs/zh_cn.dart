@@ -38,7 +38,6 @@ const zhCN = {
     'useServerCtime': '创建文件使用服务器时间',
     'maxRunning': '最大下载数',
     'defaultDirectDownload': '默认勾选直接下载',
-    'downloadConfirmation': '下载确认',
     'autoStartTasks': '启动时自动开始未完成的任务',
     'autoTorrentEnable': '自动从 .torrent 文件创建 BT 任务',
     'autoTorrentDeleteAfterDownload': '创建 BT 任务后删除 .torrent 文件',

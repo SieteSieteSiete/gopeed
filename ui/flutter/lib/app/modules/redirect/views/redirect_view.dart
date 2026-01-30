@@ -25,7 +25,8 @@ class RedirectView extends GetView<RedirectController> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       logger.i('PostFrameCallback: Starting 350ms delay...');
       await Future.delayed(const Duration(milliseconds: 350));
-      logger.i('PostFrameCallback: Delay complete, navigating to: ${redirectArgs.page}');
+      logger.i(
+          'PostFrameCallback: Delay complete, navigating to: ${redirectArgs.page}');
       Get.rootDelegate
           .offAndToNamed(redirectArgs.page, arguments: redirectArgs.arguments);
       logger.i('Navigation command sent');

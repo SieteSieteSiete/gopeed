@@ -71,7 +71,8 @@ class _Client {
           handler.next(options);
         },
         onError: (error, handler) {
-          logger.e('API Error: ${error.message} for ${error.requestOptions.path}');
+          logger.e(
+              'API Error: ${error.message} for ${error.requestOptions.path}');
           logger.e('Response status: ${error.response?.statusCode}');
           // Only web version has a login page
           if (Util.isWeb() && error.response?.statusCode == 401) {

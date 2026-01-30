@@ -89,7 +89,7 @@ class ExtraConfig {
   bool notifyWhenNewVersion;
   bool autoStartTasks;
   List<DownloadCategory> downloadCategories;
-  bool downloadConfirmationEnabled;
+  bool showCreateTaskDialogEnabled;
 
   ExtraConfigBt bt = ExtraConfigBt();
   ExtraConfigGithubMirror githubMirror = ExtraConfigGithubMirror();
@@ -103,7 +103,7 @@ class ExtraConfig {
     this.notifyWhenNewVersion = true,
     this.autoStartTasks = false,
     this.downloadCategories = const [],
-    this.downloadConfirmationEnabled = false,
+    this.showCreateTaskDialogEnabled = false,
   });
 
   factory ExtraConfig.fromJson(Map<String, dynamic>? json) =>

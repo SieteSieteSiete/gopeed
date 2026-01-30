@@ -151,20 +151,21 @@ class SettingView extends GetView<SettingController> {
       );
     });
 
-    final buildDownloadConfirmation =
-        _buildConfigItem('downloadConfirmation', () {
-      return appController.downloaderConfig.value.extra.downloadConfirmationEnabled
+    final buildShowCreateTaskDialog =
+        _buildConfigItem('showCreateTaskDialog', () {
+      return appController
+              .downloaderConfig.value.extra.showCreateTaskDialogEnabled
           ? 'on'.tr
           : 'off'.tr;
     }, (Key key) {
       return Container(
         alignment: Alignment.centerLeft,
         child: Switch(
-          value:
-              appController.downloaderConfig.value.extra.downloadConfirmationEnabled,
+          value: appController
+              .downloaderConfig.value.extra.showCreateTaskDialogEnabled,
           onChanged: (bool value) async {
             appController.downloaderConfig.update((val) {
-              val!.extra.downloadConfirmationEnabled = value;
+              val!.extra.showCreateTaskDialogEnabled = value;
             });
             await debounceSave();
           },

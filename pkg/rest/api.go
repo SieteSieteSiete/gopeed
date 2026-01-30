@@ -47,8 +47,8 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		// Check if download confirmation is enabled for browser extension requests
 		cfg, cfgErr := Downloader.GetConfig()
 		if cfgErr == nil {
-			// Check if download confirmation is enabled in settings
-			if confirmationEnabled, ok := cfg.Extra["downloadConfirmationEnabled"].(bool); ok && confirmationEnabled {
+			// Check if "create task" dialog should be shown
+			if showCreateDialog, ok := cfg.Extra["showCreateTaskDialogEnabled"].(bool); ok && showCreateDialog {
 				// Check if request is from browser extension (has Origin header)
 				origin := r.Header.Get("Origin")
 				isExtension := strings.HasPrefix(origin, "chrome-extension://") ||

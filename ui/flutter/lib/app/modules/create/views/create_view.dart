@@ -122,7 +122,8 @@ class CreateView extends GetView<CreateController> {
             final reqExtra = ReqExtraBt.fromJson(
                 jsonDecode(jsonEncode(routerParams.req!.extra)));
             _btTrackerController.text = reqExtra.trackers.join("\n");
-            logger.i('BT trackers pre-populated: ${reqExtra.trackers.length} trackers');
+            logger.i(
+                'BT trackers pre-populated: ${reqExtra.trackers.length} trackers');
           },
         };
         if (routerParams.req?.extra != null) {
@@ -144,7 +145,8 @@ class CreateView extends GetView<CreateController> {
                     OptsExtraHttp.fromJson(jsonDecode(jsonEncode(opt.extra)));
                 _connectionsController.text =
                     optsExtraHttp.connections.toString();
-                logger.i('HTTP options pre-populated: connections=${optsExtraHttp.connections}');
+                logger.i(
+                    'HTTP options pre-populated: connections=${optsExtraHttp.connections}');
               }
             },
             Protocol.bt: null,
