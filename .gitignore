@@ -5,7 +5,6 @@
 *.so
 *.dylib
 ui/flutter/dist/
-ui/flutter/ui/
 # Test binary, built with `go test -c`
 *.test
 
