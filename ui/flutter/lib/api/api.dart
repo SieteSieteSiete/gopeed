@@ -7,7 +7,6 @@ import 'package:get/get.dart' as getx;
 
 import '../app/routes/app_pages.dart';
 import '../database/database.dart';
-import '../util/log_util.dart';
 import '../util/util.dart';
 import 'model/create_task.dart';
 import 'model/create_task_batch.dart';
@@ -50,13 +49,6 @@ class _Client {
       dio.options.receiveTimeout = const Duration(seconds: 60);
       dio.interceptors.add(InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Log all outgoing API requests with headers
-          logger.i('=== API Request ===');
-          logger.i('Method: ${options.method}');
-          logger.i('Path: ${options.path}');
-          logger.i('Full URL: ${options.uri}');
-          logger.i('Headers: ${options.headers}');
-
           if (apiToken.isNotEmpty) {
             options.headers['X-Api-Token'] = apiToken;
           }
@@ -66,14 +58,9 @@ class _Client {
               options.headers['Authorization'] = 'Bearer $token';
             }
           }
-          logger.i('Final Headers after modification: ${options.headers}');
-          logger.i('==================');
           handler.next(options);
         },
         onError: (error, handler) {
-          logger.e(
-              'API Error: ${error.message} for ${error.requestOptions.path}');
-          logger.e('Response status: ${error.response?.statusCode}');
           // Only web version has a login page
           if (Util.isWeb() && error.response?.statusCode == 401) {
             getx.Get.rootDelegate.offAndToNamed(Routes.LOGIN);
