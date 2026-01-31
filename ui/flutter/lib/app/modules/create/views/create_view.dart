@@ -154,7 +154,7 @@ class CreateView extends GetView<CreateController> {
                   value!.text!.startsWith(e) ||
                   value.text!.startsWith(e.toUpperCase()))
               .isNotEmpty) {
-            _urlController.text = value.text!;
+            _urlController.text = value!.text!;
             _urlController.selection = TextSelection.fromPosition(
                 TextPosition(offset: _urlController.text.length));
             return;
