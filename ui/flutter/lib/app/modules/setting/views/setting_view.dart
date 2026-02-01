@@ -151,8 +151,9 @@ class SettingView extends GetView<SettingController> {
       );
     });
 
-    final buildShowCreateTaskDialog =
-        _buildConfigItem('showCreateTaskDialog', () {
+    final buildShowCreateTaskDialog = Util.isWindows()
+        ? () => null
+        : _buildConfigItem('showCreateTaskDialog', () {
       return appController
               .downloaderConfig.value.extra.showCreateTaskDialogEnabled
           ? 'on'.tr
