@@ -382,8 +382,9 @@ class AppController extends GetxController with WindowListener, TrayListener {
         showNotification: true,
         playSound: false,
       ),
-      foregroundTaskOptions: ForegroundTaskOptions(
-        eventAction: ForegroundTaskEventAction.repeat(5000),
+      foregroundTaskOptions: const ForegroundTaskOptions(
+        interval: 5000,
+        isOnceEvent: false,
         autoRunOnBoot: true,
         allowWakeLock: true,
         allowWifiLock: true,
@@ -396,8 +397,10 @@ class AppController extends GetxController with WindowListener, TrayListener {
       FlutterForegroundTask.startService(
         notificationTitle: "serviceTitle".tr,
         notificationText: "serviceText".tr,
-        notificationIcon: const NotificationIcon(
-          metaDataName: 'launcher',
+        notificationIcon: const NotificationIconData(
+          resType: ResourceType.mipmap,
+          resPrefix: ResourcePrefix.ic,
+          name: 'launcher',
         ),
       );
     }
@@ -405,9 +408,9 @@ class AppController extends GetxController with WindowListener, TrayListener {
 
   Future<void> _handleDeepLink(Uri uri) async {
     // Ensure window is shown and focused when handling deep links
-    if (Util.isDesktop()) {
-      await windowManager.show();
-    }
+    // if (Util.isDesktop()) {
+    //   await windowManager.show();
+    // }
 
     if (uri.scheme == "gopeed") {
       // gopeed:///create?params=eyJyZXEiOnsidXJsIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9maWxlLnR4dCJ9fQ==
