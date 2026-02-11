@@ -89,31 +89,42 @@ class AppController extends GetxController with WindowListener, TrayListener {
 
   @override
   void onReady() {
+    logger.i("AppController.onReady() CALLED - Timestamp: ${DateTime.now()}");
     super.onReady();
 
+    logger.i("AppController.onReady() - Starting _initDeepLinks");
     _initDeepLinks().onError((error, stackTrace) =>
         logger.w("initDeepLinks error", error, stackTrace));
 
+    logger.i("AppController.onReady() - Starting _initWindows");
     _initWindows().onError((error, stackTrace) =>
         logger.w("initWindows error", error, stackTrace));
 
+    logger.i("AppController.onReady() - Starting _initTray");
     _initTray().onError(
         (error, stackTrace) => logger.w("initTray error", error, stackTrace));
 
+    logger.i("AppController.onReady() - Starting _initRpcServer");
     _initRpcServer().onError((error, stackTrace) =>
         logger.w("initRpcServer error", error, stackTrace));
 
+    logger.i("AppController.onReady() - Starting _initForegroundTask");
     _initForegroundTask().onError((error, stackTrace) =>
         logger.w("initForegroundTask error", error, stackTrace));
 
+    logger.i("AppController.onReady() - Starting _initTrackerUpdate");
     _initTrackerUpdate().onError((error, stackTrace) =>
         logger.w("initTrackerUpdate error", error, stackTrace));
 
+    logger.i("AppController.onReady() - Starting _initLaunchAtStartup");
     _initLaunchAtStartup().onError((error, stackTrace) =>
         logger.w("initLaunchAtStartup error", error, stackTrace));
 
+    logger.i("AppController.onReady() - Starting _initCheckUpdate");
     _initCheckUpdate().onError((error, stackTrace) =>
         logger.w("initCheckUpdate error", error, stackTrace));
+
+    logger.i("AppController.onReady() - COMPLETED");
   }
 
   @override
@@ -506,8 +517,10 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   Future<void> trackerUpdate() async {
+    logger.i("trackerUpdate() called");
     final btExtConfig = downloaderConfig.value.extra.bt;
     final result = <String>[];
+    logger.i("trackerUpdate() - iterating over ${btExtConfig.trackerSubscribeUrls.length} tracker URLs");
     for (var u in btExtConfig.trackerSubscribeUrls) {
       final cdns = allTrackerSubscribeUrlCdns[u];
       if (cdns == null) {
@@ -529,7 +542,9 @@ class AppController extends GetxController with WindowListener, TrayListener {
     });
     refreshTrackers();
 
+    logger.i("trackerUpdate() - calling saveConfig()");
     await saveConfig();
+    logger.i("trackerUpdate() - completed");
   }
 
   refreshTrackers() {
@@ -543,17 +558,23 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   Future<void> _initTrackerUpdate() async {
+    logger.i("_initTrackerUpdate() called");
     final btExtConfig = downloaderConfig.value.extra.bt;
     final lastUpdateTime = btExtConfig.lastTrackerUpdateTime;
     // if last update time is null or more than 1 day, update trackers
     if (btExtConfig.autoUpdateTrackers &&
         (lastUpdateTime == null ||
             lastUpdateTime.difference(DateTime.now()).inDays < 0)) {
+      logger.i("_initTrackerUpdate() - autoUpdateTrackers enabled, calling trackerUpdate()");
       try {
         await trackerUpdate();
+        logger.i("_initTrackerUpdate() - trackerUpdate() completed successfully");
       } catch (e) {
         logger.w("tracker update fail", e);
       }
+    } else {
+      logger.i("_initTrackerUpdate() - skipped (autoUpdateTrackers=${
+          btExtConfig.autoUpdateTrackers}, lastUpdateTime=$lastUpdateTime)");
     }
   }
 
@@ -692,11 +713,14 @@ class AppController extends GetxController with WindowListener, TrayListener {
   }
 
   Future<void> saveConfig() async {
+    logger.i("saveConfig() called");
     Database.instance.saveStartConfig(StartConfigEntity(
         network: startConfig.value.network,
         address: startConfig.value.address,
         apiToken: startConfig.value.apiToken));
+    logger.i("saveConfig() - calling putConfig()");
     await putConfig(downloaderConfig.value);
+    logger.i("saveConfig() - completed");
   }
 
   Map<String, dynamic> _decodeParams(String params) {

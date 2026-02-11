@@ -20,6 +20,7 @@ import '../../../../api/model/resolve_task.dart';
 import '../../../../api/model/task.dart';
 import '../../../../database/database.dart';
 import '../../../../util/input_formatter.dart';
+import '../../../../util/log_util.dart';
 import '../../../../util/message.dart';
 import '../../../../util/util.dart';
 import '../../../routes/app_pages.dart';
@@ -822,6 +823,7 @@ class CreateView extends GetView<CreateController> {
   }
 
   Future<void> _doConfirm() async {
+    logger.i("=== _doConfirm() called - Timestamp: ${DateTime.now()} ===");
     if (controller.isConfirming.value) {
       return;
     }
@@ -829,6 +831,7 @@ class CreateView extends GetView<CreateController> {
     try {
       _confirmController.start();
       if (_confirmFormKey.currentState!.validate()) {
+        logger.i("_doConfirm() - form validated, proceeding with task creation");
         final isWebFileChosen =
             Util.isWeb() && controller.fileDataUri.isNotEmpty;
         final submitUrl = isWebFileChosen

@@ -7,6 +7,7 @@ import 'package:get/get.dart' as getx;
 
 import '../app/routes/app_pages.dart';
 import '../database/database.dart';
+import '../util/log_util.dart';
 import '../util/util.dart';
 import 'model/create_task.dart';
 import 'model/create_task_batch.dart';
@@ -96,13 +97,17 @@ class TimeoutException implements Exception {
 _Client? _client;
 
 void init(String network, String address, String apiToken) {
+  logger.i("API.init() called: network=$network, address=$address, apiToken=${apiToken.isEmpty ? 'empty' : '***'}");
   _client = _Client(network, address, apiToken);
+  logger.i("API.init() completed successfully");
 }
 
 _Client get _clientOrThrow {
   if (_client == null) {
+    logger.e("_clientOrThrow: _client is NULL! Stack trace:\n${StackTrace.current}");
     throw StateError('API client not initialized. Call api.init() first.');
   }
+  logger.i("_clientOrThrow: returning initialized client");
   return _client!;
 }
 

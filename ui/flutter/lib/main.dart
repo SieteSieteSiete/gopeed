@@ -107,12 +107,20 @@ Future<void> init(StartupArgs args) async {
   final controller =
       Get.put(AppController(hiddenFromArgs: args.hiddenFromArgs));
   try {
+    logger.i("STEP 1: Loading start config...");
     await controller.loadStartConfig();
+    logger.i("STEP 1: Start config loaded successfully");
+
     final startCfg = controller.startConfig.value;
+    logger.i("STEP 2: Starting Libgopeed backend... network=${startCfg.network}");
     controller.runningPort.value = await LibgopeedBoot.instance.start(startCfg);
+    logger.i("STEP 2: Libgopeed backend started on port ${controller.runningPort.value}");
+
+    logger.i("STEP 3: Initializing API client... address=${controller.runningAddress()}");
     api.init(startCfg.network, controller.runningAddress(), startCfg.apiToken);
-  } catch (e) {
-    logger.e("libgopeed init fail", e);
+    logger.i("STEP 3: API client initialized successfully");
+  } catch (e, stackTrace) {
+    logger.e("libgopeed init fail", e, stackTrace);
   }
 
   try {
