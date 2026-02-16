@@ -23,8 +23,6 @@ class LibgopeedBootNative implements LibgopeedBoot {
       }
       if (Platform.isMacOS) {
         libName += "dylib";
-        // Use @rpath to find the dylib in the app bundle's Frameworks directory
-        libName = "@rpath/$libName";
       }
       if (Platform.isLinux) {
         libName += "so";
