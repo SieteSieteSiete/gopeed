@@ -226,8 +226,7 @@ List<String> _getUnixExecutablePaths(Browser browser) {
 }
 
 Future<String?> _getManifestPath(Browser browser) async {
-  final manifestName =
-      browser == Browser.firefox ? '$_hostName.moz.json' : '$_hostName.json';
+  final manifestName = '$_hostName.json';
   if (Platform.isWindows) {
     return await Util.homePathJoin(manifestName);
   }
